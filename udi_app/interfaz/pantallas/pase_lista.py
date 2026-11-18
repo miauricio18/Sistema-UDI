@@ -123,7 +123,7 @@ class PantallaPaseLista(Pantalla):
         acciones = ttk.Frame(marco)
         acciones.pack(fill="x", pady=(Medida.UNIDAD, 0))
         acciones.columnconfigure((0, 1), weight=1, uniform="accion")
-        self._boton_laptop = ttk.Button(acciones, text="Trae laptop", command=self.alternar_laptop)
+        self._boton_laptop = ttk.Button(acciones, text="Usa su laptop", command=self.alternar_laptop)
         self._boton_laptop.grid(row=0, column=0, sticky="ew", padx=(0, 4))
         self._boton_liberar = ttk.Button(acciones, text="Quitar equipo", command=self.liberar_equipo)
         self._boton_liberar.grid(row=0, column=1, sticky="ew", padx=(4, 0))
@@ -278,7 +278,7 @@ class PantallaPaseLista(Pantalla):
         elegida = self._asistencia_elegida()
         estado = "normal" if elegida is not None else "disabled"
         self._boton_laptop.configure(
-            state=estado, text="Quitar laptop" if elegida and elegida.es_laptop else "Trae laptop")
+            state=estado, text="Quitar laptop" if elegida and elegida.es_laptop else "Usa su laptop")
         self._boton_liberar.configure(
             state="normal" if elegida and elegida.numero_equipo else "disabled")
         if elegida is None:
@@ -312,10 +312,13 @@ class PantallaPaseLista(Pantalla):
 
     @staticmethod
     def _texto_equipo(asistencia: Asistencia, largo: bool = False) -> str:
-        if asistencia.es_laptop:
-            return "Laptop propia" if largo else "Laptop"
         if asistencia.numero_equipo:
-            return f"Computadora {asistencia.numero_equipo}" if largo else str(asistencia.numero_equipo)
+            lugar = f"Computadora {asistencia.numero_equipo}" if largo else str(asistencia.numero_equipo)
+            if asistencia.es_laptop:
+                lugar += " · con su laptop" if largo else " · laptop"
+            return lugar
+        if asistencia.es_laptop:
+            return "Trae laptop, sin lugar" if largo else "Laptop"
         return "Sin equipo" if largo else ""
 
     # ------------------------------------------------------------------ #
@@ -382,7 +385,7 @@ class PantallaPaseLista(Pantalla):
         self.contexto.intentar(
             lambda: self.servicios.asistencia.marcar_laptop(
                 self._sesion.id_sesion, elegida.alumno.boleta, trae),
-            exito=f"{elegida.alumno.nombre}: " + ("trae laptop propia." if trae else "ya no usa laptop."))
+            exito=f"{elegida.alumno.nombre}: " + ("anotado: usa su laptop." if trae else "se quitó la nota de laptop."))
         self.actualizar()
 
     def liberar_equipo(self) -> None:

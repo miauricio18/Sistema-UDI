@@ -1,7 +1,7 @@
 """Pase de lista y uso de equipos de una clase.
 
 Es el servicio que más usa la encargada: registrar llegadas, asignar
-computadora, marcar laptop y cerrar o reabrir el pase de lista.
+computadora, anotar laptop propia y cerrar o reabrir el pase de lista.
 """
 
 from __future__ import annotations
@@ -166,7 +166,6 @@ class ServicioAsistencia:
             id_asistencia = self._id_asistencia(id_sesion, asistencia.alumno.boleta)
             self._usos.cerrar_de_asistencia(id_asistencia, ahora)  # suelta la anterior
             self._usos.abrir(id_asistencia, equipo.id_equipo, ahora)
-            self._asistencias.marcar_laptop(id_asistencia, False)
             self._anotar(
                 "ASIGNAR_EQUIPO",
                 f"sesion={id_sesion} boleta={asistencia.alumno.boleta} equipo={numero_equipo}",
@@ -188,14 +187,16 @@ class ServicioAsistencia:
             return self._leer(id_sesion, boleta)
 
     def marcar_laptop(self, id_sesion: int, boleta: str, es_laptop: bool = True) -> Asistencia:
-        """Marca que el alumno trae laptop: no ocupa lugar en el mapa."""
+        """Anota que el alumno trabaja con su laptop propia.
+
+        Es solo una nota: el alumno se sienta igual en un lugar del laboratorio,
+        así que conserva (o recibe después) su computadora en el mapa.
+        """
         sesion = self._obtener_sesion(id_sesion)
         self._exigir_pase_abierto(sesion)
         with self._bd.transaccion():
             asistencia = self._registrar(sesion, boleta, Origen.TABLETA)
             id_asistencia = self._id_asistencia(id_sesion, asistencia.alumno.boleta)
-            if es_laptop:
-                self._usos.cerrar_de_asistencia(id_asistencia, self._reloj.ahora())
             self._asistencias.marcar_laptop(id_asistencia, es_laptop)
             self._anotar(
                 "LAPTOP",

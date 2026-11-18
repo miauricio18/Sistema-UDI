@@ -62,12 +62,28 @@ def prueba_cambiar_de_equipo_libera_el_anterior(servicios, clase):
     assert _equipo(servicios, clase, 6).estado is EstadoEquipo.OCUPADO
 
 
-def prueba_la_laptop_libera_la_computadora(servicios, clase):
+def prueba_la_laptop_es_solo_una_nota_y_conserva_el_lugar(servicios, clase):
     servicios.asistencia.asignar_equipo(clase.id_sesion, BOLETA_3CM1, 5)
     asistencia = servicios.asistencia.marcar_laptop(clase.id_sesion, BOLETA_3CM1)
     assert asistencia.es_laptop is True
-    assert asistencia.numero_equipo is None
-    assert _equipo(servicios, clase, 5).estado is EstadoEquipo.LIBRE
+    assert asistencia.numero_equipo == 5
+    assert _equipo(servicios, clase, 5).estado is EstadoEquipo.OCUPADO
+
+
+def prueba_la_laptop_marcada_antes_tambien_ocupa_lugar(servicios, clase):
+    servicios.asistencia.marcar_laptop(clase.id_sesion, BOLETA_3CM1)
+    asistencia = servicios.asistencia.asignar_equipo(clase.id_sesion, BOLETA_3CM1, 7)
+    assert asistencia.es_laptop is True
+    assert asistencia.numero_equipo == 7
+    assert _equipo(servicios, clase, 7).estado is EstadoEquipo.OCUPADO
+
+
+def prueba_quitar_la_nota_de_laptop_no_mueve_al_alumno(servicios, clase):
+    servicios.asistencia.asignar_equipo(clase.id_sesion, BOLETA_3CM1, 5)
+    servicios.asistencia.marcar_laptop(clase.id_sesion, BOLETA_3CM1)
+    asistencia = servicios.asistencia.marcar_laptop(clase.id_sesion, BOLETA_3CM1, False)
+    assert asistencia.es_laptop is False
+    assert asistencia.numero_equipo == 5
 
 
 def prueba_liberar_equipo(servicios, clase):

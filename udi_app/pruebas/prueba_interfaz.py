@@ -207,9 +207,10 @@ def prueba_laptop_y_quitar_equipo(app):
     pantalla.seleccionar_alumno(BOLETA_3CM1)
     pantalla.alternar_laptop()
     assert _asistencia(app, BOLETA_3CM1).es_laptop
-    assert _asistencia(app, BOLETA_3CM1).numero_equipo is None
+    assert _asistencia(app, BOLETA_3CM1).numero_equipo == 5   # la laptop no quita el lugar
     pantalla.alternar_laptop()
     assert not _asistencia(app, BOLETA_3CM1).es_laptop
+    assert _asistencia(app, BOLETA_3CM1).numero_equipo == 5
     pantalla.tocar_equipo(6)
     pantalla.seleccionar_alumno(BOLETA_3CM1)
     pantalla.liberar_equipo()
